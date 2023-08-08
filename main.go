@@ -20,7 +20,7 @@ import (
 
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/sdk/plugin"
-	"github.com/kaleido-io/vault-plugin-secrets-ethsign/backend"
+	"github.com/pelipas/vault-plugin-secp256k1/backend"
 )
 
 func main() {

@@ -1,6 +1,7 @@
 coverage.txt
 **/debug.test
 # binary from "make" build
-ethsign
+secpsign
 # binary from "go build"
-vault-plugin-secrets-ethsign
+vault-plugin-secp265k1
+.vscode/launch.json

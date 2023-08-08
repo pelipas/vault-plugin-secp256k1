@@ -25,6 +25,11 @@ func pathCreateAndList(b *backend) *framework.Path {
 				Description: "Hexidecimal string for the private key (32-byte or 64-char long). If present, the request will import the given key instead of generating a new key.",
 				Default:     "",
 			},
+			"addressType": &framework.FieldSchema{
+				Type:        framework.TypeString,
+				Description: "Type of address to be generated (possible values are ETH, P2PK, P2PKH, P2SH, P2WPKH, P2WSH, P2TR). If not present, the request generate ETH address.",
+				Default:     "",
+			},
 		},
 	}
 }

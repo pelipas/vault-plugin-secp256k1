@@ -59,3 +59,26 @@ func pathSign(b *backend) *framework.Path {
 		},
 	}
 }
+
+func pathSignRaw(b *backend) *framework.Path {
+	return &framework.Path{
+		Pattern:      "accounts/" + framework.GenericNameRegex("name") + "/signRaw",
+		HelpSynopsis: "Sign provided raw data.",
+		HelpDescription: `
+
+    Sign a hex encoded bytes array.
+
+    `,
+		Fields: map[string]*framework.FieldSchema{
+			"name": &framework.FieldSchema{Type: framework.TypeString},
+			"payload": &framework.FieldSchema{
+				Type:        framework.TypeString,
+				Description: "Data to sign, hex encoded byte array",
+			},
+		},
+		ExistenceCheck: b.pathExistenceCheck,
+		Callbacks: map[logical.Operation]framework.OperationFunc{
+			logical.CreateOperation: b.signRaw,
+		},
+	}
+}
