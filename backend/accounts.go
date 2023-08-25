@@ -145,7 +145,7 @@ func (b *backend) createAccount(ctx context.Context, req *logical.Request, data 
 func (b *backend) readAccount(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	address := data.Get("name").(string)
 	b.Logger().Info("Retrieving account for address", "address", address)
-	account, err := b.retrieveAccount(ctx, req, address)
+	account, err := b.retrieveAccountRaw(ctx, req, address)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,8 @@ func (b *backend) readAccount(ctx context.Context, req *logical.Request, data *f
 
 	return &logical.Response{
 		Data: map[string]interface{}{
-			"address": account.Address,
+			"address":   account.Address,
+			"publicKey": account.PublicKey,
 		},
 	}, nil
 }
@@ -163,7 +164,7 @@ func (b *backend) readAccount(ctx context.Context, req *logical.Request, data *f
 func (b *backend) exportAccount(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	address := data.Get("name").(string)
 	b.Logger().Info("Retrieving account for address", "address", address)
-	account, err := b.retrieveAccount(ctx, req, address)
+	account, err := b.retrieveAccountRaw(ctx, req, address)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +182,7 @@ func (b *backend) exportAccount(ctx context.Context, req *logical.Request, data 
 
 func (b *backend) deleteAccount(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	address := data.Get("name").(string)
-	account, err := b.retrieveAccount(ctx, req, address)
+	account, err := b.retrieveAccountRaw(ctx, req, address)
 	if err != nil {
 		b.Logger().Error("Failed to retrieve the account by address", "address", address, "error", err)
 		return nil, err

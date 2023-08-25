@@ -3,7 +3,7 @@
 **UNDER CONSTRUCTION!**
 
 Blockchain-agnostic HashiCorp Vault plugin that supports secp256k1 based signing, with an API interface that turns the vault into a software-based HSM device.
-Based on [EthSign by Kaleido.io] (https://github.com/kaleido-io/vault-plugin-secrets-ethsign) 
+Based on EthSign by Kaleido.io (https://github.com/kaleido-io/vault-plugin-secrets-ethsign) 
 
 ![Overview](/resources/overview.png)
 
@@ -197,7 +197,7 @@ $  curl -H "Authorization: Bearer $TOKEN" http://localhost:8200/v1/secp/accounts
 
 Using the command line:
 ```
-g$ vault list eth/accounts
+g$ vault list secp/accounts
 
 Keys
 ----
@@ -228,11 +228,12 @@ $  curl -H "Authorization: Bearer $TOKEN" http://localhost:8200/v1/secp/accounts
 
 Using the command line:
 ```
-$ vault read eth/accounts/0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a
+$ vault read secp/accounts/12SkHVY1iGomTLit6aRafK3TtGakCBnWVu
 
 Key        Value
 ---        -----
-address    0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a
+address    12SkHVY1iGomTLit6aRafK3TtGakCBnWVu
+publicKey  a022743c2a6930a0bee3bdac72c84e2158e78498b91a8ecae7bb45a26804fe1697ebe5a397ba27695d5522b3e6550e200de8b9cb77129af1afd19e9545ec94aa
 ```
 
 ### Export An Account
@@ -259,7 +260,7 @@ $  curl -H "Authorization: Bearer $TOKEN" http://localhost:8200/v1/secp/export/a
 
 Using the command line:
 ```
-$ vault read eth/export/accounts/0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a
+$ vault read secp/export/accounts/0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a
 
 Key           Value
 ---           -----
