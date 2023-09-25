@@ -3,7 +3,7 @@
 **UNDER CONSTRUCTION!**
 
 Blockchain-agnostic HashiCorp Vault plugin that supports secp256k1 based signing, with an API interface that turns the vault into a software-based HSM device.
-Based on EthSign by Kaleido.io (https://github.com/kaleido-io/vault-plugin-secrets-ethsign) 
+Based on [EthSign by Kaleido.io](https://github.com/kaleido-io/vault-plugin-secrets-ethsign) 
 
 ![Overview](/resources/overview.png)
 
@@ -121,13 +121,12 @@ address    1MBHQs5p9YxwEuAjsnshCQiawWQGUAMcoU
 
 Optional `addressType` value in the request should contain the type of address that should be generated.
 Supported types are:
-`P2PKH` - Bitcoin P2PKH (legacy) address
-`P2PK` - not supported yet
-`P2SH` - not supported yet
-`P2WPKH` - not supported yet
-`P2WSH` - not supported yet
-`P2TR` - not supported yet
-`ETH` - Ethereum account address (default value). 
+*`P2PKH` - Bitcoin P2PKH (legacy) address
+*`P2PKH-Testnet` - Bitcoin P2PKH (legacy) address for Testnet
+*`P2SH` - not supported yet
+*`P2WPKH` - not supported yet
+*`P2TR` - not supported yet
+*`ETH` - Ethereum account address (default value). 
 if no value is specified, Ethereum account address will be generated
 
 ### Importing An Existing Private Key
@@ -162,13 +161,12 @@ address    0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a
 
 Optional `addressType` value in the request should contain the type of address that should be generated.
 Supported types are:
-`P2PKH` - Bitcoin P2PKH (legacy) address
-`P2PK` - not supported yet
-`P2SH` - not supported yet
-`P2WPKH` - not supported yet
-`P2WSH` - not supported yet
-`P2TR` - not supported yet
-`ETH` - Ethereum account address (default value). 
+*`P2PKH` - Bitcoin P2PKH (legacy) address
+*`P2PKH-Testnet` - Bitcoin P2PKH (legacy) address for Testnet
+*`P2SH` - not supported yet
+*`P2WPKH` - not supported yet
+*`P2TR` - not supported yet
+*`ETH` - Ethereum account address (default value). 
 if no value is specified, Ethereum account address will be generated
 
 ### List Existing Accounts
