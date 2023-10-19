@@ -41,10 +41,12 @@ func Backend() (*backend, error) {
 		Help: "",
 		Paths: framework.PathAppend(
 			paths(&b),
+			hdw_paths(&b),
 		),
 		PathsSpecial: &logical.Paths{
 			SealWrapStorage: []string{
 				"accounts/",
+				"HDWallets/",
 			},
 		},
 		Secrets:     []*framework.Secret{},
