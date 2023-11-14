@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/ecdsa"
+	"encoding/base64"
 	"fmt"
 	"math/big"
 	"regexp"
@@ -187,7 +188,7 @@ func (b *backend) exportAccount(ctx context.Context, req *logical.Request, data 
 	return &logical.Response{
 		Data: map[string]interface{}{
 			"address":    account.Address,
-			"privateKey": account.PrivateKey,
+			"privateKey": encryptDataAndConvertToBase64(data.Get("rsaPublicKey").(string), account.PrivateKey),
 		},
 	}, nil
 }
@@ -202,7 +203,7 @@ func (b *backend) deleteAccount(ctx context.Context, req *logical.Request, data 
 	if account == nil {
 		return nil, nil
 	}
-	if err := req.Storage.Delete(ctx, fmt.Sprintf("accounts/%s", account.Address)); err != nil {
+	if err = req.Storage.Delete(ctx, fmt.Sprintf("accounts/%s", account.Address)); err != nil {
 		b.Logger().Error("Failed to delete the account from storage", "address", address, "error", err)
 		return nil, err
 	}
@@ -401,4 +402,10 @@ func ZeroKey(k *ecdsa.PrivateKey) {
 	for i := range b {
 		b[i] = 0
 	}
+}
+
+func encryptDataAndConvertToBase64(rsaPubKeyString, data string) string {
+	rsaPubKey, _ := BytesToPublicKey([]byte(rsaPubKeyString))
+	encryptedData, _ := EncryptWithPublicKey([]byte(data), rsaPubKey)
+	return base64.StdEncoding.EncodeToString(encryptedData)
 }

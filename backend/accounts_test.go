@@ -17,6 +17,7 @@ package backend
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"math/big"
 	"reflect"
@@ -419,6 +420,21 @@ func TestReadAccountPubKey(t *testing.T) {
 	}
 	publicKey := res.Data["publicKey"].(string)
 	assert.Equal("3b631ef7bb0e75cb17e7a5ab0ff0b396d535590338a464450c4444ebba4474949d4a37dacd0ca906a0fb45f05e0e7f7b6402b1e7975cf84c3d49a9206cb13a3a", publicKey)
+}
+
+func TestEncryptAndDecrypt(t *testing.T) {
+
+	priv, pub, _ := GenerateKeyPair(2048)
+	pubBytes, _ := PublicKeyToBytes(pub)
+
+	data := "ec85999367d32fbbe02dd600a2a44550b95274cc67d14375a9f0bce233f13ad2"
+
+	encryptedData := encryptDataAndConvertToBase64(string(pubBytes), data)
+
+	decodedB64, _ := base64.StdEncoding.DecodeString(encryptedData)
+
+	decryptedBytes, _ := DecryptWithPrivateKey(decodedB64, priv)
+	assert.Equal(t, data, string(decryptedBytes))
 }
 
 func TestCreateAccountsFailure3(t *testing.T) {
