@@ -187,8 +187,10 @@ func (b *backend) exportAccount(ctx context.Context, req *logical.Request, data 
 
 	return &logical.Response{
 		Data: map[string]interface{}{
-			"address":    account.Address,
-			"privateKey": encryptDataAndConvertToBase64(data.Get("rsaPublicKey").(string), account.PrivateKey),
+			"address": account.Address,
+			"privateKey": encryptDataAndConvertToBase64(
+				decodeBase64(data.Get("rsaPublicKey").(string)),
+				account.PrivateKey),
 		},
 	}, nil
 }
@@ -404,8 +406,17 @@ func ZeroKey(k *ecdsa.PrivateKey) {
 	}
 }
 
-func encryptDataAndConvertToBase64(rsaPubKeyString, data string) string {
-	rsaPubKey, _ := BytesToPublicKey([]byte(rsaPubKeyString))
+func encryptDataAndConvertToBase64(pub []byte, data string) string {
+	rsaPubKey, _ := BytesToPublicKey(pub)
 	encryptedData, _ := EncryptWithPublicKey([]byte(data), rsaPubKey)
-	return base64.StdEncoding.EncodeToString(encryptedData)
+	return encodeBase64(encryptedData)
+}
+
+func encodeBase64(b []byte) string {
+	return base64.StdEncoding.EncodeToString(b)
+}
+
+func decodeBase64(s string) []byte {
+	r, _ := base64.StdEncoding.DecodeString(s)
+	return r
 }
