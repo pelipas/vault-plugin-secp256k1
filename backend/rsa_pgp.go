@@ -133,12 +133,7 @@ func (r rsaPgpProvider) EncryptWithPublicKey(msg []byte, pubKey []byte) []byte {
 
 	entity := r.createEntityFromKeys(r.BytesToPublicKeyPacket(pubKey), nil)
 
-	w, err := armor.Encode(buf, "ENCRYPTED", make(map[string]string))
-	if err != nil {
-		panic(err)
-	}
-
-	plain, err := openpgp.Encrypt(w, []*openpgp.Entity{entity}, nil, nil, nil)
+	plain, err := openpgp.Encrypt(buf, []*openpgp.Entity{entity}, nil, nil, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -153,11 +148,6 @@ func (r rsaPgpProvider) EncryptWithPublicKey(msg []byte, pubKey []byte) []byte {
 		panic(err)
 	}
 
-	err = w.Close()
-	if err != nil {
-		panic(err)
-	}
-
 	return buf.Bytes()
 }
 
@@ -167,19 +157,10 @@ func (r rsaPgpProvider) DecryptWithPrivateKey(ciphertext []byte, privKey []byte)
 
 	entity := r.createEntityFromKeys(&privPacket.PublicKey, privPacket)
 
-	block, err := armor.Decode(bytes.NewReader(ciphertext))
-	if err != nil {
-		panic(err)
-	}
-
-	if block.Type != "ENCRYPTED" {
-		panic("Invalid message type")
-	}
-
 	var entityList openpgp.EntityList
 	entityList = append(entityList, entity)
 
-	md, err := openpgp.ReadMessage(block.Body, entityList, nil, nil)
+	md, err := openpgp.ReadMessage(bytes.NewReader(ciphertext), entityList, nil, nil)
 	if err != nil {
 		panic(err)
 	}

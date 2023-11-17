@@ -28,3 +28,22 @@ func TestPgpProvider(t *testing.T) {
 
 	assert.Equal(t, msg, decrypted)
 }
+
+func TestWithToolGpg(t *testing.T) {
+
+	t.Skip() // закомментировать при отладке
+
+	// генерируем rsa ключ: gpg --full-generate-key
+	// получаем список ключей: gpg --list-keys
+
+	public := `` // вставить свой ключ из gpg (gpg --output public.pgp --armor --export USERNAME)
+
+	p := NewRsaPgpProvider()
+
+	msg := []byte("some_private_data") // данные для шифровки
+
+	encrypted := p.EncryptWithPublicKey(msg, []byte(public))
+	b64 := encodeBase64((encrypted))
+	t.Log(b64) // положить в файл и декодировать с помощью: cat BASE64_ENCRYPTED_KEY_FILE | base64 --decode | gpg -d
+
+}
