@@ -21,11 +21,6 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
-var rsaProviders = map[string]RsaProvider{
-	"pkcs": NewRsaPkcsProvider(),
-	"pgp":  NewRsaPgpProvider(),
-}
-
 // Factory returns the backend
 func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend, error) {
 	b, err := Backend(conf.Config)
@@ -55,11 +50,7 @@ func Backend(configMap map[string]string) (*backend, error) {
 		BackendType: logical.TypeLogical,
 	}
 
-	if provider, ok := configMap["rsaProvider"]; ok {
-		b.rsaProvider = rsaProviders[provider]
-	} else { // default
-		b.rsaProvider = NewRsaPgpProvider()
-	}
+	b.rsaProvider = NewRsaPgpProvider()
 
 	return &b, nil
 }
