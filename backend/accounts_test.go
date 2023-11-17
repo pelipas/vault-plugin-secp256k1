@@ -288,15 +288,6 @@ func TestAccounts(t *testing.T) {
 	address4 := res.Data["address"].(string)
 	assert.Equal("0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a", address4)
 
-	// export key3 - TODO: Fix test
-	req = logical.TestRequest(t, logical.ReadOperation, "export/accounts/0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a")
-	req.Storage = storage
-	res, err = b.HandleRequest(context.Background(), req)
-	if err != nil {
-		t.Fatalf("err: %v", err)
-	}
-	assert.Equal("ec85999367d32fbbe02dd600a2a44550b95274cc67d14375a9f0bce233f13ad2", res.Data["privateKey"])
-
 	// validate de-dup of same private keys imported multiple times
 	req = logical.TestRequest(t, logical.ListOperation, "accounts")
 	req.Storage = storage

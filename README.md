@@ -235,11 +235,11 @@ publicKey  a022743c2a6930a0bee3bdac72c84e2158e78498b91a8ecae7bb45a26804fe1697ebe
 ```
 
 ### Export An Account
-You can also export the account by returning the private key.
+You can also export the account by returning the private key. Since keys export is very sensitive operation its access rights should be configured properly and also the keys exporting is only possible as encrypted text, so the GPG public key should be provided as a rsaPublicKey parameter
 
-Using the REST API:
+Using the REST API (TODO: Add rsaPublicKey parameter example):
 ```
-$  curl -H "Authorization: Bearer $TOKEN" http://localhost:8200/v1/secp/export/accounts/0x54edadf1696986c1884534bc6b633ff9a7fdb747 |jq
+$  curl -H "Authorization: Bearer $TOKEN" http://localhost:8200/v1/secp/export/accounts/0x54edadf1696986c1884534bc6b633ff9a7fdb747 |jq 
 
 {
   "request_id": "a183425c-0998-0888-c768-8dda4ff60bef",
@@ -258,13 +258,15 @@ $  curl -H "Authorization: Bearer $TOKEN" http://localhost:8200/v1/secp/export/a
 
 Using the command line:
 ```
-$ vault read secp/export/accounts/0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a
+$ vault read secp/export/accounts/0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a rsaPublicKey="$(<my-public.key)"
 
 Key           Value
 ---           -----
 address       0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a
-privateKey    ec85999367d32fbbe02dd600a2a44550b95274cc67d14375a9f0bce233f13ad2
+privateKey    wcBMA2balAeaF6fgAQgANYCQmk+wKCqm7vIyTFXc/kUSsO/WDmOyDnq1khdYIQzt3+tjvUNs8mDpNgYXC1aLIAta6Zd+EA97NSXIgD6CUzbyz8PQJ4+0smnsUMQY9Lyo6V8yia9XyNgv04jB89iEPQeCqZ+dZk9Mqitpq4vcqFKklv51TUHmxs8FPrvRLahbGaqa+ 
 ```
+
+Returned privateKey value should be decoded from base64 and then decrypted using GPG utility
 
 ### Build and Sign Ethereum Transaction (legacy mode)
 Use one of the accounts to sign a transaction.
