@@ -69,10 +69,6 @@ func (r rsaPgpProvider) PublicKeyToBytes(key *rsa.PublicKey) []byte {
 	return buf.Bytes()
 }
 
-func (r rsaPgpProvider) BytesToPrivateKey(priv []byte) *rsa.PrivateKey {
-	panic("not implemented")
-}
-
 func (r rsaPgpProvider) BytesToPrivateKeyPacket(priv []byte) *packet.PrivateKey {
 	in := bytes.NewReader(priv)
 	block, err := armor.Decode(in)
@@ -95,10 +91,6 @@ func (r rsaPgpProvider) BytesToPrivateKeyPacket(priv []byte) *packet.PrivateKey 
 		panic("Invalid private key")
 	}
 	return key
-}
-
-func (r rsaPgpProvider) BytesToPublicKey(pub []byte) *rsa.PublicKey {
-	panic("not implemented")
 }
 
 func (r rsaPgpProvider) BytesToPublicKeyPacket(pub []byte) *packet.PublicKey {
