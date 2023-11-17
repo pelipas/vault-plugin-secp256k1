@@ -17,14 +17,18 @@ package backend
 import (
 	"context"
 	"fmt"
-
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
+var rsaProviders = map[string]RsaProvider{
+	"pkcs": NewRsaPkcsProvider(),
+	"pgp":  NewRsaPgpProvider(),
+}
+
 // Factory returns the backend
 func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend, error) {
-	b, err := Backend()
+	b, err := Backend(conf.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +39,7 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 }
 
 // Backend returns the backend
-func Backend() (*backend, error) {
+func Backend(configMap map[string]string) (*backend, error) {
 	var b backend
 	b.Backend = &framework.Backend{
 		Help: "",
@@ -50,12 +54,20 @@ func Backend() (*backend, error) {
 		Secrets:     []*framework.Secret{},
 		BackendType: logical.TypeLogical,
 	}
+
+	if provider, ok := configMap["rsaProvider"]; ok {
+		b.rsaProvider = rsaProviders[provider]
+	} else { // default
+		b.rsaProvider = NewRsaPgpProvider()
+	}
+
 	return &b, nil
 }
 
 // backend implements the Backend for this plugin
 type backend struct {
 	*framework.Backend
+	rsaProvider RsaProvider
 }
 
 func (b *backend) pathExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {

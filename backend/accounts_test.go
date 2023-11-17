@@ -35,12 +35,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func getBackend(t *testing.T) (logical.Backend, logical.Storage) {
+func getBackend(t *testing.T, configParam ...map[string]string) (logical.Backend, logical.Storage) {
+
+	mapConfig := make(map[string]string, 0)
+	for _, m := range configParam {
+		for k, v := range m {
+			mapConfig[k] = v
+		}
+	}
+
 	config := &logical.BackendConfig{
 		Logger:      logging.NewVaultLogger(log.Trace),
 		System:      &logical.StaticSystemView{},
 		StorageView: &logical.InmemStorage{},
 		BackendUUID: "test",
+		Config:      mapConfig,
 	}
 
 	b, err := Factory(context.Background(), config)
@@ -421,12 +430,105 @@ func TestReadAccountPubKey(t *testing.T) {
 	assert.Equal("3b631ef7bb0e75cb17e7a5ab0ff0b396d535590338a464450c4444ebba4474949d4a37dacd0ca906a0fb45f05e0e7f7b6402b1e7975cf84c3d49a9206cb13a3a", publicKey)
 }
 
-func TestEncryptAndDecryptPrivateKey(t *testing.T) {
+func TestEncryptAndDecryptPrivateKey_PkcsProvider(t *testing.T) {
 
-	rsaPrivKeyInBase64 := `LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBeXF6YlJrV3J2RTBQb1VMUVJyeDd0UGl0QVhpVUNXTHBiWDVkNGZsV3phemtNQ1J6CitaOWpvMCtsTG9iR0hTNHVDM2I1NHFESjJuZ2h4YlBMd0RUMTFWK28yWnh5YThObGk2RUtmbVVGMmVGSm4vaEgKdis3YzNMRXhNSXl2Z1JhbThuR0xNZm8zY1JCdkRuTmJNU0t1Y04yN0h0cEQ4Vk5DSlp0VDY5T3BLeVEydW95WApxaWp4R3RINFVaOGx5a2kyZVZ2YVZLblJzM1NXTjV4blNPS3p4aUdCcEhzU3ZldEJFVEFzL2FzaHI5TDNJQU9GCnI4VklTaWE4TmxKMTFFOWVWdjRGMi9KMERqamtOUFFxUktnS3NGNm1VdW80clF1YnErd3Jyd3Q5WGtWTFF4UDYKVVJ1cDl3WDBVSDdkMDZ1Nk9hdVkwUWh3Q1BQMzhHOEV2RE5KcndJREFRQUJBb0lCQUh4TVVOcWpKZlVCQ2VIcgp1Uko0ekNHc0ZXWitqY1BIN3NNaEtmREoyMnVlYWdBQWkwUC9kYnNWd0lkdFRwbGMxZzVmOUZjQ0oybWVIWkJECmVXVXkxY1g3dWZGajJtU3UzRnNxOCtXYWpXRVhvdkRCOHpjS0JsZ3ZMNnpIeTJjTy9tcFlLbmNITHZOZmtjeTYKQUtaOHo2RVd5NGpiY2FuU1Z4SDdWaGVlb3ZSNlV5ZWdDMDNDVEZQUFBzSG1lTnJLck0vanM3a0VjOUl4WmNlbQpma09LMUJBVmRHbkpqMW0zNUhsOVJUKzVZcU1HbWVrZDg1Zmgxb1BrYi91eWtoSE5nNDRxY3dobE1VMkorOFI5Ck9yNnpFNFN4cTBieW80bUJIMHNjU0JLOFZSV0lpQTJRZ3p6ejFjUXkyT0JtUTdjUzJmdHFNdHRHb2F0Ny9vL1UKOWwrUjBuRUNnWUVBL2lQbFFHelhWQnovUkZOZ0l5Zmh5R1FpQlJudUxRc0xqdHFIVnpjNlRTdG03dWRoQjYxMgpoTzVuZzB4YlE3YXNhdGg3V0ZDWFVyR0FKSEJBanZ5REpyZlorZXdhRVFmYzJmaW5LdytVRWRMd0VONFUzWjVZCnNzb2dnM2xNWlk5eGRLaVQzRURJUWpGa0FOYXd4ZGtsZCtoSzhDSVBwR0hQZU52NjAwL3YyS2tDZ1lFQXpDaUwKLzNxSHJuRk9sbzlSUjJiVlV4OFRiYi90RHBnQ0RQU2NudFg5YTVrMXFacFJ2M3A0amlRVnRRcnVEdXpCSkt3ZAp4aXBNa3VzL2F2cFFRaU0ramx4QjBMa0pTUjNLVFlSNk1yZFB3L05YVDRsNGF5b1ZJQWFSYWxIVkZMTll0M05vCm5iaFZlaWRMaWVxVnRLK1pZUllMODhsd2ZsZU1SdWR3WFNOZlRwY0NnWUJzSUFPS25JUWtvazJzMlRnKzNObi8KOHpKU0wwMFpWdWlzOTZhN1lhRHBjanpTQ2hsTE5lOEY4WlNTMVNyRExYWS80eWpmVXpKK21VeG10R2VUTGpYeQpoQ2cyWDlCYlRKZ1hHT2F1dUdzTUJrM2pMMGw3WE1KcUZ2c3NWTEEvU1g5QTNmUkNza0ZCZ0ZnR3oxRFliR0czCm1WcEF2bzBmS0Fvb1pwZFp6bG5DT1FLQmdGUnE4N0NaSHQ5LzFLb202c25tZUpFZFNYQlpLeEdjdzBST0pURDgKZFFSMzNwdVp4dkd4RjRaVzMyN3o3UW5ZMWVodkR3U3cydWJwUlZqYjFqSHkxdHdRdzlvbG1QUlYwQ0FMaG1mUQpLcmh3dDRxWTRtVVZpcFNxZ3BoKzYrZmFYUFhHVDl6ZnF1Q092UXB6S0tJRTlod1IvTEU2ZXp5U3dOdFV1YjZaCmNNQlRBb0dCQUt2NWtnci9CZGg0ZWZRbjZSN0kzQ2dxbkF6SWU2UE1MYkFIdHgwRUZFVUdsZys3RnNocTJ0a1QKZkhFQjRtVklpelV5WHZTS0FyVU1nRmdQVmI3UWNaYlFpVjkvbHNhcVJtL2ZMOFBhcE5aL1h6cXhQZmdtSUtXWAp2NitIYWRBbjlQMGFDWE5SNnBOaTZRWFZhV1ZKQjdMOHRVLzArdWpGS1kzYVIxYkkwcStxCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==`
-	rsaPubKeyInBase64 := `LS0tLS1CRUdJTiBSU0EgUFVCTElDIEtFWS0tLS0tCk1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBeXF6YlJrV3J2RTBQb1VMUVJyeDcKdFBpdEFYaVVDV0xwYlg1ZDRmbFd6YXprTUNSeitaOWpvMCtsTG9iR0hTNHVDM2I1NHFESjJuZ2h4YlBMd0RUMQoxVitvMlp4eWE4TmxpNkVLZm1VRjJlRkpuL2hIdis3YzNMRXhNSXl2Z1JhbThuR0xNZm8zY1JCdkRuTmJNU0t1CmNOMjdIdHBEOFZOQ0padFQ2OU9wS3lRMnVveVhxaWp4R3RINFVaOGx5a2kyZVZ2YVZLblJzM1NXTjV4blNPS3oKeGlHQnBIc1N2ZXRCRVRBcy9hc2hyOUwzSUFPRnI4VklTaWE4TmxKMTFFOWVWdjRGMi9KMERqamtOUFFxUktnSwpzRjZtVXVvNHJRdWJxK3dycnd0OVhrVkxReFA2VVJ1cDl3WDBVSDdkMDZ1Nk9hdVkwUWh3Q1BQMzhHOEV2RE5KCnJ3SURBUUFCCi0tLS0tRU5EIFJTQSBQVUJMSUMgS0VZLS0tLS0K`
+	rsaPrivKeyRaw := `-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAtGkASOiL82Rad9Qrk726BhKh56Q5N96ZvmqNNhYTQ9w2n+xi
+3Hea8cgrj9jHzfjiJ3gCqvMIbmgpUHsWkOlop9/bthR3gu9TtRl7Ukf2WIkfWnC0
+jZchkTRBoPNjrNxDLsrWcqZPNt/388CefuFX7yOCVdyMbDdLfyqRmwOkV/gmD5Fh
+lzvkc2IzyNQBzgpRM6jXoh1HWIZd2zBAcIK0efLIWrkp/wjR0y0VIkzmtLNomRoD
+Qf+vPfsIo857m0T8z3yespjHX4sP2XHMuhX9dUMJI1viDoeKp+sKx24POOdPGFsp
+8fGJTpZjIXUyftXSeQdGpQEdn3AjZgF70zU7wwIDAQABAoIBABIDqhOdpNvY2W+9
+r9xAxaJ1mdUXgN8jSxbIbPFJowLTqmCtqfF5v+8EndTvQIRApdRrF1kai2z62aU/
+pTEzHVAl+jpkMMrSOvmKYdYFeYO9rXPKbTz2KlPlc+guZXWNSOgTOPaZxK8mDgw4
+35qrxawLT6hjLWJg4xj/lypzYqWl5rMJ7TYgwUErNuk8kLdR++vWGsvvi5/T0xiF
+s3/914IaUZq5sqom/1EFFoTO7dTotpEbghctS4/wrvLkUp6DkvwLkUJP/OgIg9u9
+0yH4JQCy6cuhAMP9b/N3/7tMFuabb1kF/UuCEAnG92GfRk6SfmDPeOmm5kJVSV22
+QuLW9YECgYEAznFSFDly10W9wCvnzXWtSPyw6y+Qk/Fp7Pdj62tz6HGxdjTTG3zl
+hT5tPaq7AoemmAcKcpiceUhKBa+Ry7ZdE3jCRsP8MFAeN3OAQl0JqHZokI3kpKse
+4oXmWO0tAokFTN09YhOnWxEgp2z70WO7gegxCR3tjC39L0Xxpv1hL0UCgYEA37fi
+qB9F8jBIwG03jRLH7+Okas2HZdBJZIOwUksbpdp948oSmU+vwpDSUwLvrPH1NPWA
+GuJeuOJvVW9qKdZEfRHvBqVUo+QGWwxfHra9MZklK6cx53E/0WhvmfBTHXs25oQj
+yvB3a74f7/It9YhLQWodNulaTNtnOryOPkJaS2cCgYEAs5xeWCA/bVJNK/RHIjf/
+AuBvIL/qXv0MNtJqibmcR6EbUAfXoDPDEXFl4+A2ApZ4+A4wJdHnWZHubRH6nC1W
+v4kyJhV/xZz/HSmNbq+5pmsWwKXjRu1m2pi696WqomkKRny6WilVUuMM8P3d/ahy
+zCxy9UanlW2xuT52Z95Nfq0CgYBFPClfEl6ZNywssSAx/o/1w6OMkhLHBZDRFJgq
+v6fMyjOPnWfoHmsscZlFq3D1OuRCAYAl0cyytxDxhct7Kx6C/lvU2LG7DsSQxOFj
+JfajNNv2CIY/NCMl8YYoQ+HVC97PtDFHiufKZkqH/ZEPnaB8nBRyfAFAK95kpRn4
+VpyPHQKBgExP0zvKdZA1smUAKq+OpaYhayvriXStzMDt5uGizKidkvZv7G3Z0Usv
+T6HWG6UaIK5jlG/5pI9GtC2S2o558lZL0ME37NJZpNYm3quT7guJ8URXUmbtzume
+jhFZRezWK+B6U/m3YHP93RFQjeNJ3p3Izm3eSKeWCM9rMvx9hYT6
+-----END RSA PRIVATE KEY-----`
 
-	rsaPrivKeyRaw := decodeBase64(rsaPrivKeyInBase64)
+	b, _ := getBackend(t, map[string]string{
+		"rsaProvider": "pkcs",
+	})
+
+	req := logical.TestRequest(t, logical.UpdateOperation, "accounts")
+	storage := req.Storage
+	secretPrivateKey := "ec85999367d32fbbe02dd600a2a44550b95274cc67d14375a9f0bce233f13ad2"
+	data := map[string]interface{}{
+		"privateKey": secretPrivateKey,
+	}
+	req.Data = data
+	res, err := b.HandleRequest(context.Background(), req)
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+
+	req = logical.TestRequest(t, logical.ReadOperation, "export/accounts/0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a")
+	req.Storage = storage
+	data = map[string]interface{}{
+		"rsaPublicKey": `-----BEGIN RSA PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtGkASOiL82Rad9Qrk726
+BhKh56Q5N96ZvmqNNhYTQ9w2n+xi3Hea8cgrj9jHzfjiJ3gCqvMIbmgpUHsWkOlo
+p9/bthR3gu9TtRl7Ukf2WIkfWnC0jZchkTRBoPNjrNxDLsrWcqZPNt/388CefuFX
+7yOCVdyMbDdLfyqRmwOkV/gmD5Fhlzvkc2IzyNQBzgpRM6jXoh1HWIZd2zBAcIK0
+efLIWrkp/wjR0y0VIkzmtLNomRoDQf+vPfsIo857m0T8z3yespjHX4sP2XHMuhX9
+dUMJI1viDoeKp+sKx24POOdPGFsp8fGJTpZjIXUyftXSeQdGpQEdn3AjZgF70zU7
+wwIDAQAB
+-----END RSA PUBLIC KEY-----`,
+	}
+	req.Data = data
+	res, err = b.HandleRequest(context.Background(), req)
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+
+	decodedEncryptedKey := decodeBase64(res.Data["privateKey"].(string))
+
+	pkcsProvider := NewRsaPkcsProvider()
+
+	decryptedBytes := pkcsProvider.DecryptWithPrivateKey(decodedEncryptedKey, []byte(rsaPrivKeyRaw))
+	assert.Equal(t, secretPrivateKey, string(decryptedBytes))
+}
+
+func TestEncryptAndDecryptPrivateKey_PgpProvider(t *testing.T) {
+
+	rsaPrivKeyRaw := `-----BEGIN PGP PRIVATE KEY BLOCK-----
+
+xcLYBGVXbpIBCACxRXmxAQmvGnUq9uxXZy0SLJCydOOAJonYzaiHJM4lh17seeND
+/9aVrAWhaJU9iQMRAsjn2xbFqKMeUOZTlaPT0cR2XfCdUDu56JWkBxvUQ+jg8gPf
+0jWMnJuonxPd7e1AbCT/RedQfy8z4Uo8k/82thvlpbmlFxBmXP1/ir4DSxf4oQqy
+QPwipZmPmJkreuN27ArZofCzcGpfEu1mlrM/PfP1Ll4Tx2D5nMdSnv73p/neQFKo
+mu1YD6k+u0I8kH+L7mZh2jbyYs1c52mTM32zoEegYRe0jR5vnCHHOjtuUSQB5Jy8
+UEMRLTt18+jQAi1feUd51ZHRVt1B5VC7NJ3jABEBAAEACACHKVLUy9bHZOPrQ2QG
+bEuoLMSS3J7NihTWclBJ4p0vbhzJL1JB+aJycjvEysnnpjzpTndCmQCu6pqctdA3
+8MN98NXb7lpUh+VSJW1bKHRmjvTT9pNPp6ZetNXWZpwuPYgE86/t1y28aYzjAKaq
+s6kG3Sk+GvMGViSR99rs0St5tBSEztwj8XCUi7nRBDiOjdJj1OgQxlBX17Ou2bkS
+ANfbacWDJt6UnNmyxzzJSfMYBIvzD+KKeOqT79RrJGb6ZDvK5eepcK7DtgVfjf54
+neblv6OQlET1yxVhENJ/YJVXEDcwl6IUJtKZfqMoYXGVJ0gH3XStdtT/b3gJczin
+r+YBBADBLfeoiA+OadPYrizOkJ7rvohCs+nFFYVyNQQpjsreT4v/Jdg4sV1nEqYZ
+ObcqD+fCxJWZpJPc+94sJ41pISsHuOX25e57u4+Od0WLc7btEwNLFPeYfKYoUu+l
+tML6szYru4fKnQMa9smWuy3xhiPyBToYDr+ZpOngFasYkwxE4wQA6usqkIpzEGXz
+TaLSHmqGd531MYcQHT2M+Ma3mtVVGQbyLkmHBcL/vtq4MzXH+poN+ZfpvWTrfZ90
+Ep7vFqsMlHuTpln8/s/9H0Io/HbldEhb0B7SdTPFzvRuIKnUZMY0VVfs/Ri5RwZj
+G3l3EGonsS9RNf3jSJH29sObD+4ekwED/ivyV+ZigqlBwJEhVnwskSSZOglMI88S
+C1YzQMjqhYSdh0+atCuS3Kja1QlpS/XSFny3sru34819T7MAFourxI4/uX5qKLBW
+ZxKX1dFic/dpBGc71AgrHLtmAWcpWni7shFjDugO1avvq7LX1nTB+hgaU8neXqQl
+TGDZa6xKmpwFTsA=
+=Dld3
+-----END PGP PRIVATE KEY BLOCK-----`
 
 	b, _ := getBackend(t)
 
@@ -445,7 +547,16 @@ func TestEncryptAndDecryptPrivateKey(t *testing.T) {
 	req = logical.TestRequest(t, logical.ReadOperation, "export/accounts/0xd5bcc62d9b1087a5cfec116c24d6187dd40fdf8a")
 	req.Storage = storage
 	data = map[string]interface{}{
-		"rsaPublicKey": rsaPubKeyInBase64,
+		"rsaPublicKey": `-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBGVXbpIBCACxRXmxAQmvGnUq9uxXZy0SLJCydOOAJonYzaiHJM4lh17seeND
+/9aVrAWhaJU9iQMRAsjn2xbFqKMeUOZTlaPT0cR2XfCdUDu56JWkBxvUQ+jg8gPf
+0jWMnJuonxPd7e1AbCT/RedQfy8z4Uo8k/82thvlpbmlFxBmXP1/ir4DSxf4oQqy
+QPwipZmPmJkreuN27ArZofCzcGpfEu1mlrM/PfP1Ll4Tx2D5nMdSnv73p/neQFKo
+mu1YD6k+u0I8kH+L7mZh2jbyYs1c52mTM32zoEegYRe0jR5vnCHHOjtuUSQB5Jy8
+UEMRLTt18+jQAi1feUd51ZHRVt1B5VC7NJ3jABEBAAE=
+=B3ki
+-----END PGP PUBLIC KEY BLOCK-----`,
 	}
 	req.Data = data
 	res, err = b.HandleRequest(context.Background(), req)
@@ -455,9 +566,9 @@ func TestEncryptAndDecryptPrivateKey(t *testing.T) {
 
 	decodedEncryptedKey := decodeBase64(res.Data["privateKey"].(string))
 
-	privToDecode, _ := BytesToPrivateKey(rsaPrivKeyRaw)
+	pkcsProvider := NewRsaPgpProvider()
 
-	decryptedBytes, _ := DecryptWithPrivateKey(decodedEncryptedKey, privToDecode)
+	decryptedBytes := pkcsProvider.DecryptWithPrivateKey(decodedEncryptedKey, []byte(rsaPrivKeyRaw))
 	assert.Equal(t, secretPrivateKey, string(decryptedBytes))
 }
 
