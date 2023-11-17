@@ -185,12 +185,14 @@ func (b *backend) exportAccount(ctx context.Context, req *logical.Request, data 
 		return nil, fmt.Errorf("Account does not exist")
 	}
 
+	encryptedData := b.rsaProvider.EncryptWithPublicKey(
+		[]byte(account.PrivateKey),
+		[]byte(data.Get("rsaPublicKey").(string)))
+
 	return &logical.Response{
 		Data: map[string]interface{}{
-			"address": account.Address,
-			"privateKey": encryptDataAndConvertToBase64(
-				decodeBase64(data.Get("rsaPublicKey").(string)),
-				account.PrivateKey),
+			"address":    account.Address,
+			"privateKey": encodeBase64(encryptedData),
 		},
 	}, nil
 }
@@ -404,12 +406,6 @@ func ZeroKey(k *ecdsa.PrivateKey) {
 	for i := range b {
 		b[i] = 0
 	}
-}
-
-func encryptDataAndConvertToBase64(pub []byte, data string) string {
-	rsaPubKey, _ := BytesToPublicKey(pub)
-	encryptedData, _ := EncryptWithPublicKey([]byte(data), rsaPubKey)
-	return encodeBase64(encryptedData)
 }
 
 func encodeBase64(b []byte) string {
