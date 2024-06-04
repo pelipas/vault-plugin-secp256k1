@@ -354,6 +354,28 @@ func TestBTCKeys(t *testing.T) {
 	addressP2PKH := res.Data["address"].(string)
 	assert.NotEqual("", addressP2PKH)
 }
+
+func TestTronKeys(t *testing.T) {
+	assert := assert.New(t)
+
+	b, _ := getBackend(t)
+
+	// create P2PKH key
+	req := logical.TestRequest(t, logical.UpdateOperation, "accounts")
+
+	data := map[string]interface{}{
+		"addressType": "TRON",
+	}
+	req.Data = data
+	res, err := b.HandleRequest(context.Background(), req)
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+	addressTRON := res.Data["address"].(string)
+	assert.NotEqual("", addressTRON)
+	t.Logf("created TRON address %v", addressTRON)
+}
+
 func TestRawSign(t *testing.T) {
 	assert := assert.New(t)
 

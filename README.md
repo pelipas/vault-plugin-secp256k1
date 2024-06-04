@@ -127,6 +127,7 @@ Supported types are:
 *`P2WPKH` - not supported yet
 *`P2TR` - not supported yet
 *`ETH` - Ethereum account address (default value). 
+*`TRON` - Tron account address. 
 if no value is specified, Ethereum account address will be generated
 
 ### Importing An Existing Private Key
@@ -167,6 +168,7 @@ Supported types are:
 *`P2WPKH` - not supported yet
 *`P2TR` - not supported yet
 *`ETH` - Ethereum account address (default value). 
+*`TRON` - Tron account address. 
 if no value is specified, Ethereum account address will be generated
 
 ### List Existing Accounts
