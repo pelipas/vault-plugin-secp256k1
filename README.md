@@ -333,7 +333,7 @@ Use the following policy to assign to a regular user level access token, with th
  * Ability to list existing keys ("list")
  */
 path "secp/accounts" {
-  capabilities = ["list"]
+  capabilities = ["list", "update"]
 }
 /*
  * Ability to retrieve individual keys ("read"), sign transactions ("create")
